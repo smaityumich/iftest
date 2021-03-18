@@ -1,5 +1,6 @@
 import numpy as np
 import sys
+np.random.seed(0)
 def create_data(n = 1000, d = 4, iterations = 100):
     for i in range(iterations):
 

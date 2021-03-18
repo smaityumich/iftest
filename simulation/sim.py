@@ -7,9 +7,7 @@ import json
 i = int(float(sys.argv[1]))
 cpus = int(float(sys.argv[2]))
 theta2 = np.arange(-4, 4.1, step = 0.4)
-x, y = np.load(f'data/x_{i}', f'data/y_{i}')
-
-
+x, y = np.load(f'data/x_{i}.npy', np.load(f'data/y_{i}.npy')
 
 def fair_distance(x1, x2):
     return np.abs(x1[0] - x2[0])
