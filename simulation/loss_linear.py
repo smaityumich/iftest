@@ -41,7 +41,11 @@ def bisection(der_loss, b_start, b_end, tol = 1e-7):
 
     fs = der_loss(b_start)
     fe = der_loss(b_end)
-    if np.sign(fs * fe) > 0 :
+    ITER = 0
+    while np.sign(fs * fe) > 0 and ITER < 200:
+        b_end += 1
+        fe = der_loss(b_end)
+    if ITER == 200 and np.sign(fs * fe) > 0:
         raise TypeError('Both of them have same sign')
     else:
         count = 0
@@ -77,7 +81,7 @@ def claculate_bias(theta, x, y):
     def der_loss(b):
         logits =  a.reshape((-1, )) + b
         return - np.sum(y) + np.sum(np.exp(logits)/(1+np.exp(logits)))
-    bias = bisection(der_loss, -20, 20)
+    bias = bisection(der_loss, -30, 30)
     return bias
 
 
