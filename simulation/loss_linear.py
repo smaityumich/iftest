@@ -223,7 +223,7 @@ def lower_bound(x, y, theta, bias, fair_direction, regularizer = 1, learning_rat
     mean_s = np.mean(s)
     mean_e = np.mean(e)
     covar = np.cov(summaries[:, 1:], rowvar=False)
-    print(covar)
+    # print(covar)
     T_n_tilde = mean_e/mean_s - (norm.ppf(1-alpha) / (np.sqrt(n) * mean_s ** 2))\
          * np.sqrt(mean_s ** 2 * covar[1, 1] + mean_e ** 2 * covar[0, 0] - 2 * mean_s * mean_e * covar[0, 1])
     

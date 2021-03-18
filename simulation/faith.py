@@ -32,11 +32,15 @@ def auditor_problem(p, C, l, delta, infty_equiv = 1000):
 
 def data_process(x, y, c_distance, classifier, infty_equiv = 1000):
     n = y.shape[0]
-    z = np.array([json.dumps({'x': list(x[i, :].astype('str')), 'y': str(y[i])}) for i in range(n)])
+    z = np.array([json.dumps({'x': list(x[i, :].astype('float64')), 'y': y[i].astype('float64')}) for i in range(n)])
     Z, count = np.unique(z, return_counts=True)
     p_n = count/n
 
     K = p_n.shape[0]
+    print(f'\n---------------\nNumber of discrete sample elements: {K}\n-----------And they are:\n')
+    for z in Z:
+        print(z + '\n')
+
     C = np.zeros(shape = (K, K))
     for i in range(K):
         for j in range(K):
@@ -50,7 +54,7 @@ def data_process(x, y, c_distance, classifier, infty_equiv = 1000):
 
     def error(z):
         d = json.loads(z)
-        x, y = np.array(d['x']).astype('int32'), int(d['y'])
+        x, y = np.array(d['x']).astype('float32'), d['y']
         y_hat = classifier(x)
         return int(y == y_hat)
 
@@ -79,13 +83,15 @@ def faith_test(x, y, c_distance, classifier, infty_equiv = 1000, B = 1000, alpha
         p = np.random.multinomial(m, p_n)/m
         return np.sqrt(m) * (auditor_problem(p = p, l = l, C = C, delta= delta, infty_equiv=infty_equiv)-sample_audit)
 
-    if cpus == 1:
-        audit_list = list(map(bootstrap, range(B)))
-    elif cpus > 1:
-        with mp.Pool(cpus) as pool:
-            bootstrap_partial = partial(bootstrap, l = l, C = C, delta = delta, m = m,\
-                auditor_problem = auditor_problem, infty_equiv = infty_equiv, sample_audit = sample_audit)
-            audit_list = pool.map(bootstrap_partial, range(B))
+    bootstrap_partial = partial(bootstrap, l = l, C = C, delta = delta, m = m,\
+         auditor_problem = auditor_problem, infty_equiv = infty_equiv, sample_audit = sample_audit)
+    # if cpus == 1:
+    audit_list = list(map(bootstrap_partial, range(B)))
+    # elif cpus > 1:
+    #     with mp.Pool(cpus) as pool:
+    #         bootstrap_partial = partial(bootstrap, l = l, C = C, delta = delta, m = m,\
+    #             auditor_problem = auditor_problem, infty_equiv = infty_equiv, sample_audit = sample_audit)
+    #         audit_list = pool.map(bootstrap_partial, range(B))
     
     audit_list = np.array(audit_list)
     c = np.quantile((audit_list - sample_audit), 1-alpha)
