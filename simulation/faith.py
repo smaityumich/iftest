@@ -3,6 +3,7 @@ import pulp
 import scipy
 import json
 import multiprocessing as mp
+from functools import partial
 
 def auditor_problem(p, C, l, delta, infty_equiv = 1000):
     K = p.shape[0]
@@ -62,7 +63,7 @@ def data_process(x, y, c_distance, classifier, infty_equiv = 1000):
 
 
 def faith_test(x, y, c_distance, classifier, infty_equiv = 1000, B = 1000, alpha = 0.05, \
- random_state = 0, m = None, delta = 0.1, cpus = 1, pool = None):
+ random_state = 0, m = None, delta = 0.1, cpus = 1):
     
     _, p_n, C, K, n, l = data_process(x, y, c_distance, classifier, infty_equiv)
     sample_audit = auditor_problem(p = p_n, l = l, C = C, delta= delta, infty_equiv= infty_equiv)
@@ -72,18 +73,19 @@ def faith_test(x, y, c_distance, classifier, infty_equiv = 1000, B = 1000, alpha
         
 
     np.random.seed(random_state)
-    P = np.random.multinomial(m, p_n, B)/m
-    def bootstrap(i):
-        p = P[i, :]
+
+
+    def bootstrap(i, l, C, delta, m, auditor_problem, infty_equiv, sample_audit):
+        p = np.random.multinomial(m, p_n)/m
         return np.sqrt(m) * (auditor_problem(p = p, l = l, C = C, delta= delta, infty_equiv=infty_equiv)-sample_audit)
 
     if cpus == 1:
         audit_list = list(map(bootstrap, range(B)))
     elif cpus > 1:
-        if isinstance(pool, type(None)):
-            raise ValueError('Found none pool')
-        else:
-            audit_list = pool.map(bootstrap, range(B))
+        with mp.Pool(cpus) as pool:
+            bootstrap_partial = partial(bootstrap, l = l, C = C, delta = delta, m = m,\
+                auditor_problem = auditor_problem, infty_equiv = infty_equiv, sample_audit = sample_audit)
+            audit_list = pool.map(bootstrap_partial, range(B))
     
     audit_list = np.array(audit_list)
     c = np.quantile((audit_list - sample_audit), 1-alpha)
