@@ -124,7 +124,7 @@ def hard_linear_classifier(theta, bias):
 
 
 
-def get_gradient(x, x_start, y,  theta, classifier, fair_direction, regularizer):
+def get_gradient(x, x_start, y,  theta, bias, fair_direction, regularizer):
     """
     Calculates gradient for entropy_loss - lambda * fair_distance(x, x_start)
 
@@ -140,9 +140,12 @@ def get_gradient(x, x_start, y,  theta, classifier, fair_direction, regularizer)
     return:
         float; gradient
     """
-    prob = classifier(x)
-    scalar = - 2 * regularizer * np.sum(fair_direction * (x - x_start))
-    return (prob - y) * theta + scalar * fair_direction
+    # prob = 1/(1+np.exp(-np.dot(x, theta)-bias))
+    # scalar = - 2 * regularizer * np.sum(fair_direction * (x - x_start))
+    # return (prob - y) * theta + scalar * fair_direction
+
+    prob = 1/(1+np.exp(-np.dot(x, theta)-bias))
+    return (prob - y) * np.array([0, theta[1]])
 
 
 
@@ -170,17 +173,22 @@ def sample_perturbation(data, theta, bias, fair_direction, regularizer = 5, lear
     x, y = data
     x_start = x
     x_fair = x
-    soft_classifier = soft_linear_classifier(theta, bias)
-    hard_classifier = hard_linear_classifier(theta, bias)
+    # soft_classifier = soft_linear_classifier(theta, bias)
+    # hard_classifier = hard_linear_classifier(theta, bias)
     fair_direction = np.array(fair_direction)
     theta = np.array(theta)
     
     for i in range(num_steps):
-        gradient = get_gradient(x_fair, x_start, y, theta,  soft_classifier, fair_direction, regularizer)
+        gradient = get_gradient(x_fair, x_start, y, theta, bias,   fair_direction, regularizer)
         x_fair = x_fair + learning_rate/((i+1) ** (2/3)) * gradient
 
-    ratio = entropy(y, soft_classifier(x_fair)) / entropy(y, soft_classifier(x_start))
-    return ratio, int(y == hard_classifier(x_start)), int(y == hard_classifier(x_fair))
+    p_start = 1/(1+np.exp(-np.dot(theta, x_start)-bias))
+    p_fair = 1/(1+np.exp(-np.dot(theta, x_fair)-bias))
+
+    ratio = entropy(y, p_fair) / entropy(y, p_start)
+    err_start = (y - (p_start>0.5).astype('float32')) ** 2
+    err_fair = (y - (p_fair>0.5).astype('float32')) ** 2
+    return ratio, err_start, err_fair
 
 
 
@@ -214,9 +222,10 @@ def lower_bound(x, y, theta, bias, fair_direction, regularizer = 1, learning_rat
         summaries = map(partial(sample_perturbation, theta = theta, bias = bias, fair_direction = fair_direction,\
                 regularizer = regularizer, learning_rate = learning_rate, num_steps = num_steps), zip(x, y))
         summaries = list(summaries)
-    summaries = np.array(summaries)
-    ratios = summaries[:, 0]
-    ratios = ratios[np.isfinite(ratios)]
+    summaries = np.array(summaries, dtype='float64')
+    #print(summaries)
+    ratios = summaries[:, 0].astype('float64')
+    ratios = ratios[~np.isnan(ratios)]
     n = ratios.shape[0]
     mean = np.mean(ratios)
     std = np.std(ratios)
