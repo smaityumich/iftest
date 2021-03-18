@@ -32,7 +32,7 @@ for t in theta2:
     
     T_n, T_n_tilde = lower_bound(x, y, theta=theta, bias=bias, fair_direction=[0, 1], num_steps = 500, learning_rate=2e-2, regularizer=200, cpus=cpus)
     psi_n = faith_test(x, y, c_distance, classifier, delta = 1e-5, cpus=cpus)
-    test_stats.append({'t2': t, 'T': T_n, 'T-tilde': T_n_tilde, 'psi': psi_n})
+    test_stats.append({'t2': t, 'T': T_n, 'T-tilde': T_n_tilde, 'psi': psi_n, 'iter': i})
 
 with open(f'test_stats/ts{i}', 'w') as f:
     json.dump(test_stats, f)
