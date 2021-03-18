@@ -32,6 +32,8 @@ for t in theta2:
 
     if cpus > 1:
         pool = mp.Pool(cpus)
+    else:
+        pool = None
 
     T_n, T_n_tilde = lower_bound(x, y, theta=theta, bias=bias, fair_direction=[0, 1], num_steps = 500, learning_rate=2e-2, regularizer=200, cpus=cpus, pool=pool)
     psi_n = faith_test(x, y, c_distance, classifier, delta = 1e-5, cpus=cpus, pool=pool)
