@@ -185,7 +185,7 @@ def sample_perturbation(data, theta, bias, fair_direction, regularizer = 5, lear
 
 
 
-def lower_bound(x, y, theta, bias, fair_direction, regularizer = 1, learning_rate = 5e-2, num_steps = 200, cpus = 3, alpha = 0.05):
+def lower_bound(x, y, theta, bias, fair_direction, regularizer = 1, learning_rate = 5e-2, num_steps = 200, cpus = 3, alpha = 0.05, pool = None):
     """
     Calculates lower bound for expected loss ratio
 
@@ -203,7 +203,9 @@ def lower_bound(x, y, theta, bias, fair_direction, regularizer = 1, learning_rat
     #x, y = np.load('data/x.npy'), np.load('data/y.npy')
     #bias = claculate_bias(theta)
     if cpus > 1:
-        with mp.Pool(cpus) as pool:
+        if isinstance(pool, type(None)):
+            raise ValueError('Found none pool')
+        else:
             summaries = pool.map(partial(sample_perturbation, theta = theta, bias = bias, fair_direction = fair_direction,\
                 regularizer = regularizer, learning_rate = learning_rate, num_steps = num_steps), zip(x, y))
     else:

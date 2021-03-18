@@ -62,7 +62,7 @@ def data_process(x, y, c_distance, classifier, infty_equiv = 1000):
 
 
 def faith_test(x, y, c_distance, classifier, infty_equiv = 1000, B = 1000, alpha = 0.05, \
- random_state = 0, m = None, delta = 0.1, cpus = 1):
+ random_state = 0, m = None, delta = 0.1, cpus = 1, pool = None):
     
     _, p_n, C, K, n, l = data_process(x, y, c_distance, classifier, infty_equiv)
     sample_audit = auditor_problem(p = p_n, l = l, C = C, delta= delta, infty_equiv= infty_equiv)
@@ -79,7 +79,9 @@ def faith_test(x, y, c_distance, classifier, infty_equiv = 1000, B = 1000, alpha
     if cpus == 1:
         audit_list = list(map(bootstrap, range(B)))
     elif cpus > 1:
-        with mp.Pool(cpus) as pool:
+        if isinstance(pool, type(None)):
+            raise ValueError('Found none pool')
+        else:
             audit_list = pool.map(bootstrap, range(B))
     
     audit_list = np.array(audit_list)

@@ -3,6 +3,7 @@ import sys
 from loss_linear import claculate_bias, hard_linear_classifier, lower_bound
 from faith import faith_test
 import json
+import multiprocessing as mp
 
 i = int(float(sys.argv[1]))
 cpus = int(float(sys.argv[2]))
@@ -29,8 +30,11 @@ for t in theta2:
     bias = claculate_bias(theta, x, y)
     classifier = hard_linear_classifier(theta, bias)
 
-    T_n, T_n_tilde = lower_bound(x, y, theta=theta, bias=bias, fair_direction=[0, 1], num_steps = 500, learning_rate=2e-2, regularizer=200, cpus=cpus)
-    psi_n = faith_test(x, y, c_distance, classifier, delta = 1e-5, cpus=cpus)
+    if cpus > 1:
+        pool = mp.Pool(cpus)
+
+    T_n, T_n_tilde = lower_bound(x, y, theta=theta, bias=bias, fair_direction=[0, 1], num_steps = 500, learning_rate=2e-2, regularizer=200, cpus=cpus, pool=pool)
+    psi_n = faith_test(x, y, c_distance, classifier, delta = 1e-5, cpus=cpus, pool=pool)
     test_stats.append({'t2': t, 'T': T_n, 'T-tilde': T_n_tilde, 'psi': psi_n})
 
 with open(f'test_stats/ts{i}', 'w') as f:
