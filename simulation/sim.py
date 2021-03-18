@@ -45,7 +45,7 @@ def calculate_tests(t, x, y, fair_direction, num_steps, learning_rate,\
     classifier = hard_linear_classifier(theta, bias)
 
     
-    T_n, T_n_tilde = lower_bound(x, y, theta=theta, bias=bias, fair_direction=fair_direction,\
+    T_n, T_n_tilde = lower_bound(x[:500, :], y[:500], theta=theta, bias=bias, fair_direction=fair_direction,\
          num_steps = num_steps, learning_rate=learning_rate, regularizer=regularizer, cpus=1)
     psi_n = faith_test(x, y, c_distance, classifier, delta = delta, cpus=1, B = B)
     ts =  {'t2': t, 'T': T_n, 'T-tilde': T_n_tilde, 'psi': psi_n, 'iter': iters}
