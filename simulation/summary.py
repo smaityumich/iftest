@@ -1,4 +1,4 @@
-import json, sys, os
+import json, sys, os, glob
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -9,8 +9,8 @@ import argparse
 
 def join(ITER, file):
     summary = []
-    for i in range(ITER):
-        with open(file+str(i), 'r') as f:
+    for fname in glob.glob(file + '*'):
+        with open(fname, 'r') as f:
             summary += json.load(f)
 
     return summary
@@ -31,5 +31,5 @@ if __name__ == '__main__':
 
     if args.clean:
         os.system('rm '+args.file+'*')
-        
+
 
