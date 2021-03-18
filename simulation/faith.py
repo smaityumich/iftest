@@ -72,8 +72,9 @@ def faith_test(x, y, c_distance, classifier, infty_equiv = 1000, B = 1000, alpha
         
 
     np.random.seed(random_state)
+    P = np.random.multinomial(m, p_n, B)/m
     def bootstrap(i):
-        p = np.random.multinomial(m, p_n)/m
+        p = P[i, :]
         return np.sqrt(m) * (auditor_problem(p = p, l = l, C = C, delta= delta, infty_equiv=infty_equiv)-sample_audit)
 
     if cpus == 1:
