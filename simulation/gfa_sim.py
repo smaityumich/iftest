@@ -4,9 +4,9 @@ import sys
 
 
 
-def lbs_gfa(x, y,  t1, n = 100):
+def lbs_gfa(x, y,  t1, m = 100):
     
-    lbs = lower_bound(x[:n, :], y[:n], theta = [2, t1], bias = 0, fair_direction=[1, 0], regularizer=1000, cpus=1)
+    lbs = lower_bound(x[:m, :], y[:m], theta = [2, t1], bias = 0, fair_direction=[1, 0], regularizer=1000, cpus=1)
     return lbs
 
 

@@ -19,9 +19,8 @@ def c_distance(z1, z2, infty_equiv = 1000):
 
 
 
-def faith_lb(Z_n, t1, B = 20):
+def faith_lb(Z_n, t1, B = 20, n = 250):
 
-    n = 1000
     d1 = 4
     d2 = 2
 

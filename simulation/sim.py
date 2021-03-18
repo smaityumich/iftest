@@ -89,13 +89,13 @@ import itertools
     
 
 
-def lbs_all(iters, t1, n = 100, B = 1000):
+def lbs_all(iters, t1, n = 100, m = 100, B = 1000):
     x, y = np.load(f'data/x_{iters}.npy'), np.load(f'data/y_{iters}.npy')
     y = y.reshape((-1, 1))
     Z_n = np.concatenate((x, y), axis = 1)
 
-    flb = faith_lb(Z_n, t1, B = B)
-    gfa1, gfa2 = lbs_gfa(x, y, t1, n = n)
+    flb = faith_lb(Z_n, t1, B = B, n = n)
+    gfa1, gfa2 = lbs_gfa(x, y, t1, m = m)
     return [{'t': t1, 'iter': iters, 'T1': gfa1, 'T2': gfa2, 'psi': flb}]
 
 
@@ -107,7 +107,7 @@ if __name__ == '__main__':
     pars = list(itertools.product(range(ITER), theta2))
     iters, t = pars[i]
 
-    d = lbs_all(iters, t, n = 1000, B = 1000)
+    d = lbs_all(iters, t, n = 250, B = 1000, m = 250)
     with open(f'test_stats/ts_{iters}_{t}.txt', 'w') as f:
         json.dump(d, f)
 
