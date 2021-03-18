@@ -10,12 +10,17 @@ def load_data(iters):
     return np.concatenate((x, y), axis = 1)
 
 
-def c_distance(z1, z2, infty_equiv = 1000):
+def c_distance(z1, z2, infty_equiv = 1000, regularizer = 200):
 
-    if z1[0] == z2[0] and z1[2] == z2[2]:
-        return 0
-    else:
+    # if z1[0] == z2[0] and z1[2] == z2[2]:
+    #     return 0
+    # else:
+    #     return infty_equiv
+
+    if z1[2] != z2[2]:
         return infty_equiv
+    elif z1[2] == z2[2]:
+        return regularizer * np.abs(z1[0] - z2[0])
 
 
 

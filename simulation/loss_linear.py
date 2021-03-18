@@ -145,7 +145,7 @@ def get_gradient(x, x_start, y,  theta, bias, fair_direction, regularizer):
     # return (prob - y) * theta + scalar * fair_direction
 
     prob = 1/(1+np.exp(-np.dot(x, theta)-bias))
-    return (prob - y) * np.array([0, theta[1]])
+    return (prob - y) * theta + 2 * regularizer * np.arrar([(x[0] - x_start[0]), 0], dtype = 'float64')
 
 
 
