@@ -23,8 +23,8 @@ def auditor_problem(p, C, l, delta, infty_equiv = 1000):
         for j in range(K):
             if C[i, j] == infty_equiv:
                 prob += Pi[i][j] == 0
-    
-    prob.solve()
+    solver = pulp.getSolver('PULP_CBC_CMD', msg = 0)
+    prob.solve(solver)
 
 
     return pulp.value(prob.objective) - sum([l[_]*p[_] for _ in range(K)])
@@ -37,9 +37,9 @@ def data_process(x, y, c_distance, classifier, infty_equiv = 1000):
     p_n = count/n
 
     K = p_n.shape[0]
-    print(f'\n---------------\nNumber of discrete sample elements: {K}\n-----------And they are:\n')
-    for z in Z:
-        print(z + '\n')
+    # print(f'\n---------------\nNumber of discrete sample elements: {K}\n-----------And they are:\n')
+    # for z in Z:
+    #     print(z + '\n')
 
     C = np.zeros(shape = (K, K))
     for i in range(K):
@@ -56,7 +56,7 @@ def data_process(x, y, c_distance, classifier, infty_equiv = 1000):
         d = json.loads(z)
         x, y = np.array(d['x']).astype('float32'), d['y']
         y_hat = classifier(x)
-        return int(y == y_hat)
+        return int(y != y_hat)
 
 
     l = [error(_) for _ in Z]
@@ -66,11 +66,11 @@ def data_process(x, y, c_distance, classifier, infty_equiv = 1000):
     return Z, p_n, C, K, n, l
 
 
-def faith_test(x, y, c_distance, classifier, infty_equiv = 1000, B = 1000, alpha = 0.05, \
+def faith_test(K, p_n, C, n, l, infty_equiv = 1000, B = 1000, alpha = 0.05, \
  random_state = 0, m = None, delta = 0.1, cpus = 1):
     
-    _, p_n, C, K, n, l = data_process(x, y, c_distance, classifier, infty_equiv)
     sample_audit = auditor_problem(p = p_n, l = l, C = C, delta= delta, infty_equiv= infty_equiv)
+    print(f'\n----------------\nValue of sample: {sample_audit}\n------------------------\n')
     
     if isinstance(m, type(None)):
         m = np.floor(2 * np.sqrt(K) * np.sqrt(n))
@@ -81,7 +81,9 @@ def faith_test(x, y, c_distance, classifier, infty_equiv = 1000, B = 1000, alpha
 
     def bootstrap(i, l, C, delta, m, auditor_problem, infty_equiv, sample_audit):
         p = np.random.multinomial(m, p_n)/m
-        return np.sqrt(m) * (auditor_problem(p = p, l = l, C = C, delta= delta, infty_equiv=infty_equiv)-sample_audit)
+        r =  np.sqrt(m) * (auditor_problem(p = p, l = l, C = C, delta= delta, infty_equiv=infty_equiv)-sample_audit)
+        #print(f'\n----------------\nValue of {i}-th bootstrap sample: {r}\n------------------------\n')
+        return r
 
     bootstrap_partial = partial(bootstrap, l = l, C = C, delta = delta, m = m,\
          auditor_problem = auditor_problem, infty_equiv = infty_equiv, sample_audit = sample_audit)
