@@ -2,6 +2,7 @@ import numpy as np
 import pulp
 import scipy
 import json
+import multiprocessing as mp
 
 def auditor_problem(p, C, l, delta, infty_equiv = 1000):
     K = p.shape[0]
@@ -61,19 +62,25 @@ def data_process(x, y, c_distance, classifier, infty_equiv = 1000):
 
 
 def faith_test(x, y, c_distance, classifier, infty_equiv = 1000, B = 1000, alpha = 0.05, \
- random_state = 0, m = None, delta = 0.1):
+ random_state = 0, m = None, delta = 0.1, cpus = 1):
     
     _, p_n, C, K, n, l = data_process(x, y, c_distance, classifier, infty_equiv)
     sample_audit = auditor_problem(p = p_n, l = l, C = C, delta= delta, infty_equiv= infty_equiv)
     
     if isinstance(m, type(None)):
         m = np.floor(2 * np.sqrt(K) * np.sqrt(n))
+        
 
     np.random.seed(random_state)
-    audit_list = []
-    for _ in range(B):
+    def bootstrap(i):
         p = np.random.multinomial(m, p_n)/m
-        audit_list.append(np.sqrt(m) * auditor_problem(p = p, l = l, C = C, delta= delta, infty_equiv=infty_equiv))
+        return np.sqrt(m) * (auditor_problem(p = p, l = l, C = C, delta= delta, infty_equiv=infty_equiv)-sample_audit)
+
+    if cpus == 1:
+        audit_list = list(map(bootstrap, range(B)))
+    elif cpus > 1:
+        with mp.Pool(cpus) as pool:
+            audit_list = pool.map(bootstrap, range(B))
     
     audit_list = np.array(audit_list)
     c = np.quantile((audit_list - sample_audit), 1-alpha)

@@ -1,4 +1,5 @@
 import numpy as np
+import sys
 def create_data(n = 1000, d = 4, iterations = 100):
     for i in range(iterations):
 
@@ -12,3 +13,9 @@ def create_data(n = 1000, d = 4, iterations = 100):
 
 
         np.save(f'data/x_{i}.npy', x), np.save(f'data/y_{i}.npy', y)
+
+
+if __name__ == '__main__':
+    n = int(float(sys.argv[1]))
+    iterations = int(float(sys.argv[2]))
+    create_data(n = n, iterations=iterations)
