@@ -62,6 +62,7 @@ def fair_distance(x, y,  sensetive_directions):
     #print(x.shape)
     Cp =  x @ proj @ x.T
     inf = (2*y-1).reshape((-1, 1)) @ (2*y-1).reshape((1, -1))
+    inf = (1-inf)/2
     return (1 - inf) * Cp + inf * 1000
 
 
@@ -73,28 +74,28 @@ def data_modify(random_state = 0):
     y_sex_test, y_race_test = np.copy(y_sex_test), np.copy(y_race_test)
 
     _, sensetive_directions = sensitive_dir(x_test, y_sex_test, y_race_test)
-    print(sensetive_directions.shape)
-    print(x_test.shape)
+    # print(sensetive_directions.shape)
+    # print(x_test.shape)
     n = y_sex_test.shape[0]
-    pcount = np.copy(x_test[:, 2])
-    pcount_new = np.zeros((n,))
-    u, c = np.unique(pcount, return_counts=True)
-    t1 = np.sum(u[1:4] * c[1:4])/np.sum(c[1:4])
-    t2 = np.sum(u[4:] * c[4:])/np.sum(c[4:])
-    t0 = u[0]
-    v  = [t0, t1, t2]
+    # pcount = np.copy(x_test[:, 2])
+    # pcount_new = np.zeros((n,))
+    # u, c = np.unique(pcount, return_counts=True)
+    # t1 = np.sum(u[1:4] * c[1:4])/np.sum(c[1:4])
+    # t2 = np.sum(u[4:] * c[4:])/np.sum(c[4:])
+    # t0 = u[0]
+    # v  = [t0, t1, t2]
 
-    for i in range(n):
-        if pcount[i] > u[0]:
-            if pcount[i] < u[4]:
-                pcount_new[i] = v[1]
-            else:
-                pcount_new[i] = v[2]
-        else:
-            pcount_new[i] = v[0]
+    # for i in range(n):
+    #     if pcount[i] > u[0]:
+    #         if pcount[i] < u[4]:
+    #             pcount_new[i] = v[1]
+    #         else:
+    #             pcount_new[i] = v[2]
+    #     else:
+    #         pcount_new[i] = v[0]
 
-    X_test = np.copy(x_test)
-    X_test[:, 2] = pcount_new
+    # X_test = np.copy(x_test)
+    # X_test[:, 2] = pcount_new
 
     
 
@@ -130,12 +131,12 @@ def data_modify(random_state = 0):
         pa = tuple(a)
         for b in [[0], [1]]:
             pb = pa + tuple(b)
-            for c in v:
-                pc = pb + (c, )
+            for c in [(1,0,0), (0,1,0), (0,0,1)]:
+                pc = pb + c
                 for d in [(1,0,0), (0,1,0), (0,0,1)]:
                     pd = pc + d
-                    for e in [(1,0), (0,1)]:
-                        pe = pd + e
+                    for e in [[0], [1]]:
+                        pe = pd + tuple(e)
                         for f in [[0], [1]]:
                             data_point = pe + tuple(f)
                             space_Z.append(data_point)
@@ -148,17 +149,24 @@ def data_modify(random_state = 0):
 
     
     z_test = np.concatenate((x_test, y_test.reshape((-1, 1))), axis = 1).astype('float64')
-    Z_test = np.concatenate((X_test, y_test.reshape((-1, 1))), axis = 1).astype('float64')
+    #Z_test = np.concatenate((X_test, y_test.reshape((-1, 1))), axis = 1).astype('float64')
+
+    Z_dict = dict(zip([tuple(space_Z[i, :]) for i in range(K)], list(range(K))))
+
+    for _ in range(n):
+        z = tuple(z_test[_, :])
+        #z = tuple(int(x) for x in z)
+        p_n[Z_dict[z]] += 1
     
-    for i in range(n):
-        z = Z_test[i, :]
-        #print(Z_test[i, 2])
+    # for i in range(n):
+    #     z = Z_test[i, :]
+    #     #print(Z_test[i, 2])
         
-        lu = 3
-        ind = z[-1] + z[6] * 2 + np.sum(z[3:6] * np.array([0, 1, 2])) * 2 * 2 + \
-            np.where(v == z[2])[0] * 2 * 2 * 3 + z[1] * 2 * 2 * 3 * 3 + z[0] * 2 * 2 * 3 * lu * 2
-        p_n[int(ind)] += 1
-        #print(ind)
+    #     lu = 3
+    #     ind = z[-1] + z[6] * 2 + np.sum(z[3:6] * np.array([0, 1, 2])) * 2 * 2 + \
+    #         np.where(v == z[2])[0] * 2 * 2 * 3 + z[1] * 2 * 2 * 3 * 3 + z[0] * 2 * 2 * 3 * lu * 2
+    #     p_n[int(ind)] += 1
+    #     #print(ind)
     
 
     # Z_dict = dict(zip([tuple(space_Z[i, :]) for i in range(K)], list(range(K))))
@@ -171,17 +179,18 @@ def data_modify(random_state = 0):
 
     space_Z_np = np.array(space_Z, dtype = 'float64')
 
-    C = fair_distance(space_Z_np[:, :-2], space_Z_np[:, -1], sensetive_directions)
+    C = fair_distance(space_Z_np[:, :-1], space_Z_np[:, -1], sensetive_directions)
+    C[C>0] = 1000
     p_n = [_/n for _ in p_n]
     
     return p_n, C, K, n, space_Z_np
 
 def loss_vector(hard_classifier, space_Z_np):
-    l = (space_Z_np[:, -1] - hard_classifier(space_Z_np[:, :-2])) ** 2
+    l = (space_Z_np[:, -1] - hard_classifier(space_Z_np[:, :-1])) ** 2
     return l
 
 
-def faith_test(p_n, C, l, K, n, B = 10, delta = 0):
+def faith_test(p_n, C, l, K, n, B = 2, delta = 0):
     Sequence = range(K)
     Rows = Sequence
     Cols = Sequence
@@ -308,7 +317,7 @@ if __name__ == '__main__':
     p_n, C, K, n, space_Z_np = data_modify(data_seed)
     hard_classifier = load_model(data_seed, expt_seed, method=exp)
     l = loss_vector(hard_classifier, space_Z_np)
-    psi, test_statistic, c_upper = faith_test(p_n, C, l, K, n, delta = delta)
+    psi, test_statistic, c_upper = faith_test(p_n, C, l, K, n, delta = delta, B = 1000)
     d = {'psi': psi, 'test-stat': test_statistic, 'c-upper': c_upper, 'exp': exp, 'iter': iters}
     with open(f'./faith_results/res_{i}.txt', 'w') as f:
         json.dump([d,], f)
