@@ -1,0 +1,6 @@
+SLURM_JOBID:  18263063
+SLURM_ARRAY_TASK_ID:  1
+SLURM_ARRAY_JOB_ID:  18263060
+2021-03-19 16:02:56.085005: W tensorflow/stream_executor/platform/default/dso_loader.cc:59] Could not load dynamic library 'libcudart.so.10.1'; dlerror: libcudart.so.10.1: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /sw/arcts/centos7/python3.6-anaconda/5.2.0/lib:/opt/slurm/lib64::
+2021-03-19 16:02:56.085173: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.
+slurmstepd: error: *** JOB 18263063 ON gl3153 CANCELLED AT 2021-03-19T16:03:02 ***

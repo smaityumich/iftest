@@ -1,11 +1,11 @@
 #!/bin/bash
 #SBATCH --job-name=op-sim
 #SBATCH --output=logs/op-sim_%A_%a.out
-#SBATCH --array=0-39
+#SBATCH --array=0-399
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=6gb
-#SBATCH --time=10:00:00
+#SBATCH --time=2:00:00
 #SBATCH --account=yuekai1
 #SBATCH --mail-type=NONE
 #SBATCH --mail-user=smaity@umich.edu

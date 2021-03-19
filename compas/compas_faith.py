@@ -306,7 +306,7 @@ def load_model(seed_data, seed_model, method = 'sensr'):
 if __name__ == '__main__':
     i = int(float(sys.argv[1]))
     expts = ['sensr', 'reduction', 'baseline', 'project'] 
-    iteration = range(10)
+    iteration = range(100)
     delta = 0
     a = list(itertools.product(expts, iteration))
     exp, iters = a[i]

@@ -1,0 +1,43 @@
+SLURM_JOBID:  18262931
+SLURM_ARRAY_TASK_ID:  2
+SLURM_ARRAY_JOB_ID:  18262928
+2021-03-19 15:50:46.776512: W tensorflow/stream_executor/platform/default/dso_loader.cc:59] Could not load dynamic library 'libcudart.so.10.1'; dlerror: libcudart.so.10.1: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /sw/arcts/centos7/python3.6-anaconda/5.2.0/lib:/opt/slurm/lib64::
+2021-03-19 15:50:46.776543: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.
+2021-03-19 15:50:50.033380: W tensorflow/stream_executor/platform/default/dso_loader.cc:59] Could not load dynamic library 'libcuda.so.1'; dlerror: libcuda.so.1: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /sw/arcts/centos7/python3.6-anaconda/5.2.0/lib:/opt/slurm/lib64::
+2021-03-19 15:50:50.033408: W tensorflow/stream_executor/cuda/cuda_driver.cc:312] failed call to cuInit: UNKNOWN ERROR (303)
+2021-03-19 15:50:50.033430: I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:156] kernel driver does not appear to be running on this host (gl3261.arc-ts.umich.edu): /proc/driver/nvidia/version does not exist
+2021-03-19 15:50:50.033639: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN)to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2021-03-19 15:50:50.041568: I tensorflow/core/platform/profile_utils/cpu_utils.cc:104] CPU Frequency: 3000000000 Hz
+2021-03-19 15:50:50.041828: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x55580afe6340 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2021-03-19 15:50:50.041840: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+WARNING:tensorflow:No training configuration found in save file, so the model was *not* compiled. Compile it manually.
+(5278, 8)
+['sex', 'race', 'priors_count', 'age_cat=25 to 45', 'age_cat=Greater than 45', 'age_cat=Less than 25', 'c_charge_degree=F', 'c_charge_degree=M']
+sex
+race
+
+
+Measures for gender
+
+Accuracy is 0.674242
+Balanced accuracy is 0.670103
+Gap RMS is 0.21071372135305466
+Mean absolute gap is 0.20049181410839045
+Max gap is 0.2653247134880987
+Average odds difference is 0.200492
+Equal opportunity difference is 0.265325
+Statistical parity difference is 0.222199
+
+
+
+Measures for race
+
+Accuracy is 0.674242
+Balanced accuracy is 0.670103
+Gap RMS is 0.2912186005183481
+Mean absolute gap is 0.28404700900105057
+Max gap is 0.34827760891590676
+Average odds difference is 0.284047
+Equal opportunity difference is 0.348278
+Statistical parity difference is 0.311418
