@@ -102,7 +102,7 @@ def lbs_all(iters, t1, n = 100, m = 100, B = 1000):
 if __name__ == '__main__':
     i = int(float(sys.argv[1]))
     ITER = 100
-    theta2 = [(0.2 * _ - 2) for _ in range(21)]
+    theta2 = [(0.1 * _ - 2) for _ in range(41)]
 
     pars = list(itertools.product(range(ITER), theta2))
     iters, t = pars[i]
