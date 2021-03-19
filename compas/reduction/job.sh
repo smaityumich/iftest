@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=test-std-node
 #SBATCH --output=logs/compas_sensr_%A_%a.out
-#SBATCH --array=0-99
+#SBATCH --array=0-9
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=1gb

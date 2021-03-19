@@ -5,6 +5,7 @@ import utils
 from tensorflow import keras
 from data_preprocess import get_data
 from compas_data import get_compas_train_test
+import sys
 
 
 
@@ -45,6 +46,6 @@ def fit(i):
 
 if __name__ == '__main__':
 
-      i = int(float(sys.argv[1]))
-      fit(i)
-
+    i = int(float(sys.argv[1]))
+    for j in range(i*10, (i+1)*10):
+        fit(j)

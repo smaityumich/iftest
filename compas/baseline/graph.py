@@ -32,5 +32,6 @@ def fit(i = 0):
 if __name__ == '__main__':
 
       i = int(float(sys.argv[1]))
-      fit(i)
+      for j in range(i*10, (i+1)*10):
+            fit(j)
 

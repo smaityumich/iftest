@@ -4,6 +4,7 @@ from sklearn.linear_model import LogisticRegression
 from fairlearn.reductions import ExponentiatedGradient
 from fairlearn.reductions import EqualizedOdds
 from metrics import group_metrics
+import sys
 #from utils import sample_balanced, reductions_prob
 
 import json
@@ -54,6 +55,7 @@ def fit(i):
 
 if __name__ == '__main__':
 
-      i = int(float(sys.argv[1]))
-      fit(i)
+    i = int(float(sys.argv[1]))
+    for j in range(i*10, (i+1)*10):
+        fit(j)
 
