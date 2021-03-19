@@ -136,7 +136,7 @@ print(len(space_Z))
 K = len(space_Z)
 
 # Frequency (f_n, empirical distribution)
-f_n = list(0 for _ in range(K))
+p_n = list(0 for _ in range(K))
 Z_dict = dict(zip(space_Z, list(range(K))))
 
 for _ in range(len(data.labels)):
