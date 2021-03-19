@@ -116,9 +116,9 @@ def summary_all(seed_data, seed_model, lr, graph, exp = 'sensr'):
     mean_b = np.mean(b, axis = 0)
     cov_b = np.cov(b, rowvar=False)
     var_ratio = (cov_b[0, 0]* mean_b[1] ** 2 + cov_b[1, 1] * mean_b[0] ** 2 \
-          - 2 * cov_b[0, 1] * mean_b[0] * mean_b[1])/(mean_b[0] ** 4)
+          - 2 * cov_b[0, 1] * mean_b[0] * mean_b[1])/(mean_b[1] ** 4)
 
-    t_ratio = mean_b[1]/mean_b[0]
+    t_ratio = mean_b[0]/mean_b[1]
     lb_t2 = t_ratio - 1.645 * np.sqrt(var_ratio)/np.sqrt(all_val.shape[0])
 
 
