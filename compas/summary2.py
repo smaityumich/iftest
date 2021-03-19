@@ -4,7 +4,7 @@ import numpy as np
 
 from compas_data import get_compas_train_test
 from sklearn import linear_model
-import utils
+#import utils
 import time
 import multiprocessing as mp
 import random
