@@ -434,9 +434,7 @@ for i in range(K):
 # epsilon (transportation cost control) ---------------------------------------
 eps = 1
 
-# sigmoid function ------------------------------------------------------------
-def sigmoid(x):
-  return 1 / (1 + np.exp(-x))
+
 
 # Test statistic --------------------------------------------------------------
 Sequence = range(K)
@@ -520,86 +518,4 @@ plt.axvline(x=c_lower, color='orange', linestyle='--')
 plt.axvline(x=c_upper, color='orange', linestyle='--')
 #plt.savefig("boot_dist_3_m-out-of-n.pdf")
 plt.show()
-
-# ---- NEW ! ------------------------------------------------------------------
-# Bootstrap strategy 2: numerical derivative ----------------------------------
-# ---- NEW ! ------------------------------------------------------------------
-
-def cov_Sigma(f):
-    K = len(f)
-    cov = [[0 for _ in range(K)] for _ in range(K)]
-    for i in range(K):
-        for j in range(K):
-            if i == j:
-                cov[i][j] = f[i] * (1 - f[i])
-            else:
-                cov[i][j] = - f[i] * f[j]
-    return cov
-
-# How to generate a multivariate normal with mean $f_n$ and covariance $\Sigma(f_n)$
-Mean = f_n
-Cov = cov_Sigma(Mean)
-Z = np.random.multivariate_normal(Mean, Cov)
-
-# Numerical derivative step size: epsilon
-# epsilon = (n * K) ** -0.25 # 0.033868, acceptance rate is too low
-epsilon = 0.001
-epsilon_inv = 1000
-
-# Do B times ------------------------------------------------------------------
-psi_list_boot = []
-B = 1000
-count = 0
-np.random.seed(2019)
-
-while count < B:
-    Z = np.random.multivariate_normal(Mean, Cov)
-    f_boot = np.add(f_n, np.multiply(epsilon, Z))
-    if not np.all(f_boot >= 0):
-        continue
-    else:
-        count += 1
-        
-        prob = pulp.LpProblem("Fairness Testing", pulp.LpMaximize)
-
-        Pi = pulp.LpVariable.dicts("pi", (Rows, Cols), lowBound=0, cat='Continuous')
-
-        prob += pulp.lpSum([l[i] * Pi[j][i] for i in range(K) for j in range(K)])
-
-        prob += pulp.lpSum([C[i][j] * Pi[i][j] for i in range(K) for j in range(K)]) <= eps
-
-        for i in range(K):
-            prob += pulp.lpSum([Pi[i][j] for j in range(K)]) == f_boot[i]
-        
-        for i in range(K):
-            for j in range(K):
-                if C[i][j] == 1000:
-                    prob += Pi[i][j] == 0
-            
-        prob.solve()
-        psi_list_boot.append(pulp.value(prob.objective) - sum([l[_]*f_boot[_] for _ in range(K)]))
-        
-        if count % 20 == 0:
-            print(count)
-        
-# Plot ------------------------------------------------------------------------
-c_lower = np.percentile([epsilon_inv * (x - test_statistic) for x in psi_list_boot], 2.5)
-c_upper = np.percentile([epsilon_inv * (x - test_statistic) for x in psi_list_boot], 97.5)
-
-CI_lower = test_statistic - c_upper / np.sqrt(n) # 0.609033 (CI lower bound)
-CI_upper = test_statistic - c_lower / np.sqrt(n) # 0.614991 (CI upper bound)
-                                                 # 0.612636 (Test statistic)
-
-sns.distplot([epsilon_inv * (x - test_statistic) for x in psi_list_boot], hist=True, kde=True, 
-             bins= 30, color = 'skyblue', 
-             hist_kws={'edgecolor':'black'},
-             kde_kws={'linewidth': 2, "color": "k"})
-
-plt.axvline(x=c_lower, color='orange', linestyle='--')
-plt.axvline(x=c_upper, color='orange', linestyle='--')
-#plt.savefig("boot_dist_3_numerical_derivative.pdf")
-plt.show()
-
-
-
 

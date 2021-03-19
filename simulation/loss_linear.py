@@ -140,12 +140,15 @@ def get_gradient(x, x_start, y,  theta, bias, fair_direction, regularizer):
     return:
         float; gradient
     """
-    # prob = 1/(1+np.exp(-np.dot(x, theta)-bias))
-    # scalar = - 2 * regularizer * np.sum(fair_direction * (x - x_start))
-    # return (prob - y) * theta + scalar * fair_direction
+    prob = 1/(1+np.exp(-np.sum(x * theta)-bias))
+    # scalar =  2 * regularizer * np.sum(fair_direction * (x - x_start))
+    # grad =  (prob - y) * theta + scalar * fair_direction
+    # return grad / np.linalg.norm(grad)
 
-    prob = 1/(1+np.exp(-np.dot(x, theta)-bias))
-    return (prob - y) * theta + 2 * regularizer * np.array([(x[0] - x_start[0]), 0], dtype = 'float64')
+    # prob = 1/(1+np.exp(-np.dot(x, theta)-bias))
+    # return (prob - y) * theta + 2 * regularizer * np.array([(x[0] - x_start[0]), 0], dtype = 'float64')
+
+    return (prob - y) * np.array([0, theta[1]], dtype='float64')
 
 
 
@@ -197,7 +200,7 @@ def sample_perturbation(data, theta, bias, fair_direction, regularizer = 5, lear
 
 
 
-def lower_bound(x, y, theta, bias, fair_direction, regularizer = 1, learning_rate = 5e-2, num_steps = 200, cpus = 3, alpha = 0.05):
+def lower_bound(x, y, theta, bias, fair_direction, regularizer = 1, learning_rate = 5e-3, num_steps = 200, cpus = 3, alpha = 0.05):
     """
     Calculates lower bound for expected loss ratio
 

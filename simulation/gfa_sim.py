@@ -6,7 +6,8 @@ import sys
 
 def lbs_gfa(x, y,  t1, m = 100):
     
-    lbs = lower_bound(x[:m, :], y[:m], theta = [2, t1], bias = 0, fair_direction=[1, 0], regularizer=200, cpus=1)
+    lbs = lower_bound(x[:m, :], y[:m], theta = [2, t1], bias = 0, fair_direction=[1, 0],\
+         regularizer=200, cpus=1, num_steps=20, learning_rate= 2e-2)
     return lbs
 
 

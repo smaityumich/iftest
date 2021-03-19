@@ -10,7 +10,7 @@ def load_data(iters):
     return np.concatenate((x, y), axis = 1)
 
 
-def c_distance(z1, z2, infty_equiv = 1000, regularizer = 200):
+def c_distance(z1, z2, infty_equiv = 1000, regularizer = 5):
 
     # if z1[0] == z2[0] and z1[2] == z2[2]:
     #     return 0
@@ -24,7 +24,7 @@ def c_distance(z1, z2, infty_equiv = 1000, regularizer = 200):
 
 
 
-def faith_lb(Z_n, t1, B = 20, n = 250):
+def faith_lb(Z_n, t1, B = 200, n = 250):
 
     d1 = 4
     d2 = 2
@@ -68,7 +68,7 @@ def faith_lb(Z_n, t1, B = 20, n = 250):
     l = (y_hat - y_unique) ** 2
 
 
-    ft = faith_test(p_n = p, C = C, l = l, delta = 1e-6, B = B, K = K, n = n, cpus=1)
+    ft = faith_test(p_n = p, C = C, l = l, delta = 1e-2, B = B, K = K, n = n, cpus=1)
     return ft
 
 if __name__ == '__main__':
