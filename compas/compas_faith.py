@@ -181,7 +181,7 @@ def loss_vector(hard_classifier, space_Z_np):
     return l
 
 
-def faith_test(p_n, C, l, K, n, B = 1000, delta = 0):
+def faith_test(p_n, C, l, K, n, B = 10, delta = 0):
     Sequence = range(K)
     Rows = Sequence
     Cols = Sequence
@@ -230,7 +230,7 @@ def faith_test(p_n, C, l, K, n, B = 1000, delta = 0):
         prob.solve(solver)
         psi_list_boot.append(pulp.value(prob.objective) - sum([l[_]*p_boot[_] for _ in range(K)]))
     
-        if _ % 20 == 0:
+        if _ % 2 == 0:
             print(_)
 
     for _ in range(B):  # Due to computational error, we do this correction
@@ -311,6 +311,6 @@ if __name__ == '__main__':
     psi, test_statistic, c_upper = faith_test(p_n, C, l, K, n, delta = delta)
     d = {'psi': psi, 'test-stat': test_statistic, 'c-upper': c_upper, 'exp': exp, 'iter': iters}
     with open(f'./faith_results/res_{i}.txt', 'w') as f:
-        json.dump(d, f)
+        json.dump([d,], f)
     print(d)
 

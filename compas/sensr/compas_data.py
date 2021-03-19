@@ -120,14 +120,14 @@ def get_compas_train_test(pct=0.8, random_state = 0):
     
     dataset_orig = get_compas_orig()
     
-    # we will standardize continous features
-    continous_features = [
-            'priors_count'
-        ]
-    continous_features_indices = [
-            dataset_orig.feature_names.index(feat) 
-            for feat in continous_features
-        ]
+    # # we will standardize continous features
+    # continous_features = [
+    #         'priors_count'
+    #     ]
+    # continous_features_indices = [
+    #         dataset_orig.feature_names.index(feat) 
+    #         for feat in continous_features
+    #     ]
     
     # Get the dataset and split into train and test
     # dataset_orig_train, dataset_orig_test = dataset_orig.split([pct], shuffle=True)
@@ -146,17 +146,40 @@ def get_compas_train_test(pct=0.8, random_state = 0):
     y_race_train = X_train[:, rind]
     y_race_test = X_test[:, rind]
     
-    ### PROCESS TRAINING DATA
-    # normalize continuous features
-    SS = StandardScaler().fit(X_train[:, continous_features_indices])
-    X_train[:, continous_features_indices] = SS.transform(
-            X_train[:, continous_features_indices]
-    )
+    # ### PROCESS TRAINING DATA
+    # # normalize continuous features
+    # SS = StandardScaler().fit(X_train[:, continous_features_indices])
+    # X_train[:, continous_features_indices] = SS.transform(
+    #         X_train[:, continous_features_indices]
+    # )
         
-    ### PROCESS TEST DATA
-    # normalize continuous features
-    X_test[:, continous_features_indices] = SS.transform(
-            X_test[:, continous_features_indices]
-    )
+    # ### PROCESS TEST DATA
+    # # normalize continuous features
+    # X_test[:, continous_features_indices] = SS.transform(
+    #         X_test[:, continous_features_indices]
+    # )
+    X_train = np.array(X_train)
+    X_test = np.array(X_test)
 
-    return X_train, X_test, y_train, y_test, y_sex_train, y_sex_test, y_race_train, y_race_test, dataset_orig.feature_names
+    M_train = np.zeros((X_train.shape[0], X_train.shape[1] + 2))
+    M_test = np.zeros((X_test.shape[0], X_test.shape[1] + 2))
+    M_train[:, :2], M_test[:, :2] = X_train[:, :2], X_test[:, :2]
+    M_train[:, 5:], M_test[:, 5:] = X_train[:, 3:], X_test[:, 3:]
+    for i in range(X_train.shape[0]):
+        if X_train[i, 2] == 0:
+            M_train[i, 2] = 1
+        elif X_train[i, 2] >0 and X_train[i, 2] < 4:
+            M_train[i, 3] = 1
+        else:
+            M_train[i, 4] = 1
+
+
+    for i in range(X_test.shape[0]):
+        if X_test[i, 2] == 0:
+            M_test[i, 2] = 1
+        elif X_test[i, 2] >0 and X_test[i, 2] < 4:
+            M_test[i, 3] = 1
+        else:
+            M_test[i, 4] = 1
+
+    return M_train, M_test, y_train, y_test, y_sex_train, y_sex_test, y_race_train, y_race_test, dataset_orig.feature_names

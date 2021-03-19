@@ -11,7 +11,7 @@ from compas_data import get_compas_train_test
 seeds = np.load('../seeds.npy')
 
 
-for i in range(1):
+for i in range(10):
     data_seed = seeds[i, 0]
     expt_seed = seeds[i, 1]
     x_train, x_test, y_train, y_test, y_sex_train, y_sex_test, y_race_train,\
@@ -32,10 +32,10 @@ for i in range(1):
 
     print(f'Running data seed {data_seed} and expt seed {expt_seed}')
     init_graph = utils.ClassifierGraph([50,], 2, sensetive_directions = sensetive_directions,\
-     input_shape=(7, ), seed_model=expt_seed)
+     input_shape=(9, ), seed_model=expt_seed)
     graph = cl.Classifier(init_graph, x_train, y_train, num_steps = 8000, seed = expt_seed) # use for unfair algo
     #graph.model._set_inputs((-1, 5))
-    inputs = keras.Input((7,))
+    inputs = keras.Input((9,))
 
     outputs = graph(inputs)
     model = keras.Model(inputs, outputs)
