@@ -11,7 +11,7 @@ from compas_data import get_compas_train_test
 seeds = np.load('../seeds.npy')
 
 
-for i in range(10):
+def fit(i):
     data_seed = seeds[i, 0]
     expt_seed = seeds[i, 1]
     x_train, x_test, y_train, y_test, y_sex_train, y_sex_test, y_race_train,\
@@ -41,3 +41,9 @@ for i in range(10):
     model = keras.Model(inputs, outputs)
     model.save(f'graphs/graph_{data_seed}_{expt_seed}')
     #graph.model.save(f'graphs/graph_{data_seed}_{expt_seed}')
+
+
+if __name__ == '__main__':
+
+      i = int(float(sys.argv[1]))
+      fit(i)

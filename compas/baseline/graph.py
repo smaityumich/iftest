@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 import classifier as cl
-import utils
+import utils, sys
 from tensorflow import keras
 from data_preprocess import get_data
 import compas_data as compas
@@ -10,7 +10,7 @@ import compas_data as compas
 seeds = np.load('../seeds.npy')
 
 
-for i in range(10):
+def fit(i = 0):
     data_seed = seeds[i, 0]
     expt_seed = seeds[i, 1]
     x_train, x_test, y_train, y_test, y_sex_train, y_sex_test, y_race_train,\
@@ -28,3 +28,8 @@ for i in range(10):
     graph = cl.Classifier(init_graph, x_train,\
          y_train, num_steps = 8000, seed=expt_seed) # use for unfair algo
     graph.model.save(f'graphs/graph_{data_seed}_{expt_seed}')
+
+if __name__ == '__main__':
+
+      i = int(float(sys.argv[1]))
+      fit(i)
