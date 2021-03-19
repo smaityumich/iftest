@@ -37,7 +37,7 @@ def part_fluc(args):
 if __name__ == '__main__':
     starts = np.array([0,])#np.arange(0, 901, 100)
     ends = np.array([1000,])#np.arange(100, 1001, 100)
-    expts = ['sensr', 'reduction', 'baseline', 'project'] 
+    expts = ['reduction']#['sensr', 'reduction', 'baseline', 'project'] 
     data_index = range(1)#ends.shape[0])
     iteration = range(10)
     lrs = [4e-3, 2e-3, 6e-3]

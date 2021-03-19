@@ -4,7 +4,6 @@ import numpy as np
 
 from compas_data import get_compas_train_test
 from sklearn import linear_model
-import utils
 import time
 import multiprocessing as mp
 import random
@@ -99,7 +98,11 @@ def summary_all(seed_data, seed_model, lr, graph, exp = 'sensr'):
                  statistical_parity_difference_race = metrics.group_metrics(y_test, y_pred, race, label_good=1)
 
      
-    filename = exp + f'/outcome/perturbed_ratio_0_to_1000_seed_{seed_data}_{seed_model}_lr_{lr}.npy'
+    if exp == 'reduction':
+        filename = exp + f'/outcome/perturbed_ratio_0_to_1000_seed_{seed_data}_lr_{lr}.npy'
+    else:
+        filename = exp + f'/outcome/perturbed_ratio_0_to_1000_seed_{seed_data}_{seed_model}_lr_{lr}.npy'
+
     all_val = np.load(filename)
     a = all_val[:, 0]
     b = all_val[:, 1:]
@@ -118,7 +121,7 @@ def summary_all(seed_data, seed_model, lr, graph, exp = 'sensr'):
     lb_t2 = t_ratio - 1.645 * np.sqrt(var_ratio)/np.sqrt(all_val.shape[0])
 
 
-    save_dict = {'algo': exp, 'seed': (seed_data, seed_model), 'lr': lr, 'accuracy': accuracy}
+    save_dict = {'algo': exp, 'seed': str([float(seed_data), float(seed_model)]), 'lr': lr, 'accuracy': accuracy}
     save_dict['lb'] = lb
     save_dict['pval'] = pval
     save_dict['bal_acc'], \
@@ -149,14 +152,15 @@ if __name__ == '__main__':
 
     a = list(itertools.product(expts, iteration, lrs))
     i = int(float(sys.argv[1]))
-    exp, iters, lr = a[i]
-    seeds = np.load('./seeds.npy')
-    seed_data = seeds[i, 0]
-    seed_model = seeds[i, 1]
+    for j in range(i*120, (i+1)*120):
+        exp, iters, lr = a[j]
+        seeds = np.load('./seeds.npy')
+        seed_data = seeds[iters, 0]
+        seed_model = seeds[iters, 1]
 
-    graph = load_model(seed_data, seed_model, method = exp)
+        graph = load_model(seed_data, seed_model, method = exp)
 
-    d = summary_all(seed_data, seed_model, lr, graph, exp = exp)
-    with open(f'summaries/f_{i}.txt', 'w') as f:
-        json.dump([d], f)
+        d = summary_all(seed_data, seed_model, lr, graph, exp = exp)
+        with open(f'summaries/f_{j}.txt', 'w') as f:
+            json.dump([d], f)
     
