@@ -58,6 +58,8 @@ def sensitive_dir(x, gender, race):
 def fair_distance(x, y,  sensetive_directions):
     _, d = sensetive_directions.shape
     proj = np.identity(d) - sensetive_directions.T @ sensetive_directions
+    #print(proj.shape)
+    #print(x.shape)
     Cp =  x @ proj @ x.T
     inf = (2*y-1).reshape((-1, 1)) @ (2*y-1).reshape((1, -1))
     return (1 - inf) * Cp + inf * 1000
@@ -69,32 +71,67 @@ def data_modify(random_state = 0):
     _, x_test, _, y_test, _, y_sex_test,\
         _, y_race_test, _ = compas.get_compas_train_test(random_state = random_state)
     y_sex_test, y_race_test = np.copy(y_sex_test), np.copy(y_race_test)
-    print(x_test.shape)
-    _, sensetive_directions = sensitive_dir(x_test, y_sex_test, y_race_test)
 
+    _, sensetive_directions = sensitive_dir(x_test, y_sex_test, y_race_test)
+    print(sensetive_directions.shape)
+    print(x_test.shape)
+    n = y_sex_test.shape[0]
+    pcount = np.copy(x_test[:, 2])
+    pcount_new = np.zeros((n,))
+    u, c = np.unique(pcount, return_counts=True)
+    t1 = np.sum(u[1:4] * c[1:4])/np.sum(c[1:4])
+    t2 = np.sum(u[4:] * c[4:])/np.sum(c[4:])
+    t0 = u[0]
+    v  = [t0, t1, t2]
+
+    for i in range(n):
+        if pcount[i] > u[0]:
+            if pcount[i] < u[4]:
+                pcount_new[i] = v[1]
+            else:
+                pcount_new[i] = v[2]
+        else:
+            pcount_new[i] = v[0]
+
+    X_test = np.copy(x_test)
+    X_test[:, 2] = pcount_new
+
+    
 
     # Feature names:
     # (0) 'sex'                          a = 0, 1
     # (1) 'race'                         b = 0, 1
-    # (2) 'age_cat=25 to 45'             c1
-    # (3) 'age_cat=Greater than 45'      c2
-    # (4) 'age_cat=Less than 25'         c3, c1+c2+c3 = 1
-    # (5) 'priors_count=0'               d1
-    # (6) 'priors_count=1 to 3'          d2
-    # (7) 'priors_count=More than 3'     d3, d1+d2+d3 = 1
-    # (8) 'c_charge_degree=F'            e1
-    # (9) 'c_charge_degree=M'            e2, e1+e2 = 1
+    # (2) 'priors_count'                 c
+    # (3) 'age_cat=25 to 45'             d1
+    # (4) 'age_cat=Greater than 45'      d2
+    # (5) 'age_cat=Less than 25'         d3, d1+d2+d3 = 1
+    # (6) 'c_charge_degree=F'            e1
+    # (7) 'c_charge_degree=M'            e2, e1+e2 = 1
 
     # Label name: 'two_year_recid'          # f = 0, 1
+    
+    # X_test = np.copy(x_test)
+    # replace = [ np.mean(u[1:4] * c[1:4])/np.mean(c[1:4]), np.mean(u[4:] * c[4:])/np.mean(c[4:])]
+    # for i in range(n):
+    #     if X_test[i, 2] < u[4] and X_test[i, 2]>u[0] :
+    #         X_test[i, 2] = replace[0]
+    #     elif X_test[i, 2] > u[3]:
+    #         X_test[i, 2] = replace[1]
+    #     else:
+    #         X_test[i, 2] = u[0]
 
+    # pcount = [u[0]] + replace
+    # pcount = [(v, ) for v in pcount]
 
+    # u = list(u)
+    # u = [(v,) for v in u]
     space_Z = []
     for a in [[0], [1]]:
         pa = tuple(a)
         for b in [[0], [1]]:
             pb = pa + tuple(b)
-            for c in [(1,0,0), (0,1,0), (0,0,1)]:
-                pc = pb + c
+            for c in v:
+                pc = pb + (c, )
                 for d in [(1,0,0), (0,1,0), (0,0,1)]:
                     pd = pc + d
                     for e in [(1,0), (0,1)]:
@@ -103,23 +140,44 @@ def data_modify(random_state = 0):
                             data_point = pe + tuple(f)
                             space_Z.append(data_point)
     K = len(space_Z)
+    space_Z = np.array(space_Z, dtype='float64')
+    #print(K)
     p_n = list(0 for _ in range(K))
-    Z_dict = dict(zip(space_Z, list(range(K))))
+    #print(space_Z.shape)
+
+
     
-    n = len(y_test)
-    for _ in range(n):
-        z = tuple(x_test[_]) + tuple(y_test[_])
-        #z = tuple(int(x) for x in z)
-        p_n[Z_dict[z]] += 1
+    z_test = np.concatenate((x_test, y_test.reshape((-1, 1))), axis = 1).astype('float64')
+    Z_test = np.concatenate((X_test, y_test.reshape((-1, 1))), axis = 1).astype('float64')
+    
+    for i in range(n):
+        z = Z_test[i, :]
+        #print(Z_test[i, 2])
+        
+        lu = 3
+        ind = z[-1] + z[6] * 2 + np.sum(z[3:6] * np.array([0, 1, 2])) * 2 * 2 + \
+            np.where(v == z[2])[0] * 2 * 2 * 3 + z[1] * 2 * 2 * 3 * 3 + z[0] * 2 * 2 * 3 * lu * 2
+        p_n[int(ind)] += 1
+        #print(ind)
+    
+
+    # Z_dict = dict(zip([tuple(space_Z[i, :]) for i in range(K)], list(range(K))))
+    # z_test = np.concatenate((x_test, y_test.reshape((-1, 1))), axis = 1).astype('float64')
+    # print(Z_dict)
+    # for i in range(n):
+    #     z = tuple(z_test[i, :])
+    #     #z = tuple(int(x) for x in z)
+    #     p_n[Z_dict.get(z)] += 1
 
     space_Z_np = np.array(space_Z, dtype = 'float64')
 
-    C = fair_distance(space_Z_np[:, :-1], space_Z_np[:, -1], sensetive_directions)
+    C = fair_distance(space_Z_np[:, :-2], space_Z_np[:, -1], sensetive_directions)
+    p_n = [_/n for _ in p_n]
     
     return p_n, C, K, n, space_Z_np
 
 def loss_vector(hard_classifier, space_Z_np):
-    l = (space_Z_np[:, -1] - hard_classifier(space_Z_np[:, :-1])) ** 2
+    l = (space_Z_np[:, -1] - hard_classifier(space_Z_np[:, :-2])) ** 2
     return l
 
 
@@ -254,5 +312,5 @@ if __name__ == '__main__':
     d = {'psi': psi, 'test-stat': test_statistic, 'c-upper': c_upper, 'exp': exp, 'iter': iters}
     with open(f'./faith_results/res_{i}.txt', 'w') as f:
         json.dump(d, f)
-
+    print(d)
 

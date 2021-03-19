@@ -132,6 +132,7 @@ def get_compas_train_test(pct=0.8, random_state = 0):
     # Get the dataset and split into train and test
     # dataset_orig_train, dataset_orig_test = dataset_orig.split([pct], shuffle=True)
     X, y = dataset_orig.features, dataset_orig.labels
+    print(X.shape)
     X_train, X_test, y_train, y_test = train_test_split(X,y, train_size=pct, stratify=y, random_state = random_state)
     
     y_train = np.reshape(y_train, (-1, ))
