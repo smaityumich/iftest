@@ -1,7 +1,0 @@
-SLURM_JOBID:  18263635
-SLURM_ARRAY_TASK_ID:  90
-SLURM_ARRAY_JOB_ID:  18263338
-Traceback (most recent call last):
-  File "reduction_compas.py", line 4, in <module>
-    from fairlearn.reductions import ExponentiatedGradient
-ModuleNotFoundError: No module named 'fairlearn'

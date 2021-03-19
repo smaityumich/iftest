@@ -148,7 +148,7 @@ def summary_all(seed_data, seed_model, lr, graph, exp = 'sensr'):
 if __name__ == '__main__':
     
     expts = ['baseline', 'project', 'sensr', 'reduction'] 
-    iteration = range(10)
+    iteration = range(100)
     lrs =  [4e-3, 2e-3, 6e-3]
 
     a = list(itertools.product(expts, iteration, lrs))
@@ -158,7 +158,7 @@ if __name__ == '__main__':
         seeds = np.load('./seeds.npy')
         seed_data = seeds[iters, 0]
         seed_model = seeds[iters, 1]
-
+        print(j)
         graph = load_model(seed_data, seed_model, method = exp)
 
         d = summary_all(seed_data, seed_model, lr, graph, exp = exp)
