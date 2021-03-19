@@ -66,12 +66,23 @@ if __name__ == '__main__':
 
      
      filename = f'./sensr/outcome/perturbed_ratio_0_to_1000_seed_{seed_data}_{seed_model}_lr_{lr}.npy'
-     a = np.load(filename)
+     all_val = np.load(filename)
+     a = all_val[:, 0]
+     b = all_val[:, 1:]
      a = a[np.isfinite(a)]
      lb = np.mean(a) - 1.645*np.std(a)/np.sqrt(a.shape[0])
      t = (np.mean(a)-1.25)/np.std(a)
      t *= np.sqrt(a.shape[0])
      pval = 1- norm.cdf(t)
+
+     mean_b = np.mean(b, axis = 0)
+     cov_b = np.cov(b, rowvar=False)
+     var_ratio = (cov_b[0, 0]* mean_b[1] ** 2 + cov_b[1, 1] * mean_b[0] ** 2 \
+          - 2 * cov_b[0, 1] * mean_b[0] * mean_b[1])/(mean_b[0] ** 4)
+
+     t_ratio = mean_b[1]/mean_b[0]
+     lb_t2 = t_ratio - 1.645 * np.sqrt(var_ratio)/np.sqrt(all_val.shape[0])
+
 
      save_dict = {'algo': 'sensr', 'seed': (seed_data, seed_model), 'lr': lr, 'accuracy': accuracy}
      save_dict['lb'] = lb
@@ -91,6 +102,8 @@ if __name__ == '__main__':
             gap_rms_race, mean_gap_race, max_gap_race, \
             average_odds_difference_race, equal_opportunity_difference_race,\
                  statistical_parity_difference_race
+
+     save_dict['lb-t2'] = lb_t2
 
      with open('all_summary.out', 'a') as f:
           f.writelines(str(save_dict) + '\n')

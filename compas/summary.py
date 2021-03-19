@@ -31,12 +31,14 @@ if __name__ == '__main__':
     
     expts = ['baseline', 'project', 'sensr', 'reduction'] 
     iteration = range(10)
-    lrs =  [5e-3, 4e-3, 3e-3, 2e-3, 6e-3, 7e-3]
+    lrs =  [4e-3, 2e-3, 6e-3]
 
-    a = itertools.product(expts, iteration, lrs)
-    b = [i for i in a]
-    i = int(sys.argv[1])
-    part_summary(b[i])
+    a = list(itertools.product(expts, iteration, lrs))
+    for b in a:
+        part_summary(b)
+        print('Done: ' + str(b))
+    i = int(float(sys.argv[1]))
+    
 
 
 
